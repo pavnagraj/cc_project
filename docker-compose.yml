@@ -1,0 +1,36 @@
+version: '3'
+services:
+  api_server:
+    build: ./api
+    ports:
+      - "5050:5050"
+
+  node1:
+    build: ./node
+    depends_on:
+      - api_server
+    entrypoint: >
+      bash -c "
+      until curl -s http://api_server:5050; do
+        echo 'Waiting for API server...';
+        sleep 2;
+      done;
+      python node.py"
+    environment:
+      - NODE_ID=node-1
+      - CPU_CORES=2
+
+  node2:
+    build: ./node
+    depends_on:
+      - api_server
+    entrypoint: >
+      bash -c "
+      until curl -s http://api_server:5050; do
+        echo 'Waiting for API server...';
+        sleep 2;
+      done;
+      python node.py"
+    environment:
+      - NODE_ID=node-2
+      - CPU_CORES=4
